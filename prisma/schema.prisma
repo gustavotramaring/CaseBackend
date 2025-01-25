@@ -1,0 +1,34 @@
+// schema.prisma
+
+// Configuração do datasource para o banco MySQL no container Docker
+datasource db {
+  provider = "mysql" // Tipo do banco de dados
+  url      = env("DATABASE_URL")
+}
+
+// Geração do Prisma Client para uso no backend
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Modelo para a tabela 'clientes'
+model Cliente {
+  id      Int     @id @default(autoincrement()) // Chave primária
+  nome    String  // Nome do cliente
+  email   String  @unique // E-mail único
+  status  Boolean @default(true) // Status do cliente (ativo/inativo)
+  ativos  Ativo[] // Relação com os ativos deste cliente
+
+  @@map("clientes") // Define o nome da tabela no banco de dados
+}
+
+// Modelo para a tabela 'ativos'
+model Ativo {
+  id        Int     @id @default(autoincrement()) // Chave primária
+  nome      String  // Nome do ativo
+  valor     Float   // Valor do ativo
+  clienteId Int     // Chave estrangeira para a tabela 'clientes'
+  cliente   Cliente @relation(fields: [clienteId], references: [id]) // Relacionamento com Cliente
+
+  @@map("ativos") // Define o nome da tabela no banco de dados
+}

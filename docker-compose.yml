@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=mysql://gustavo:gustavo123@betteredge_db:3306/betteredge
+    depends_on:
+      - betteredge_db
+
+  betteredge_db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: gustavo123
+      MYSQL_DATABASE: betteredge
+      MYSQL_USER: gustavo
+      MYSQL_PASSWORD: gustavo123
+    ports:
+      - "3308:3306"
