@@ -27,8 +27,8 @@ model Ativo {
   id        Int     @id @default(autoincrement()) // Chave primária
   nome      String  // Nome do ativo
   valor     Float   // Valor do ativo
-  clienteId Int     // Chave estrangeira para a tabela 'clientes'
-  cliente   Cliente @relation(fields: [clienteId], references: [id]) // Relacionamento com Cliente
+  clienteId Int?     // Chave estrangeira para a tabela 'clientes'
+  cliente   Cliente? @relation(fields: [clienteId], references: [id]) // Relacionamento com Cliente
 
   @@map("ativos") // Define o nome da tabela no banco de dados
 }

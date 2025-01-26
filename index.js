@@ -14,11 +14,6 @@ app.register(require('@fastify/cors'), {
 app.register(clienteRoutes);
 app.register(ativoRoutes);
 
-// Adicionando uma rota simples para teste
-app.get('/ping', async (request, reply) => {
-  return { message: 'pong' };
-});
-
 async function start() {
   try {
     await app.listen({

@@ -2,10 +2,28 @@ const prisma = require('../../prismaClient');
 
 async function getAllClientes() {
   try {
-    return await prisma.cliente.findMany();
+    return await prisma.cliente.findMany({
+      include: {
+      ativos: true,
+    }
+  });
   } catch (error) {
     console.error('Erro ao listar clientes:', error);
     throw new Error('Erro ao listar clientes'); // Ou retorne um objeto de erro mais específico
+  }
+}
+
+async function getClienteById(id) {
+  try {
+    return await prisma.cliente.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        ativos: true, // Inclui os ativos associados ao cliente
+      },
+    });
+  } catch (error) {
+    console.error('Erro ao buscar cliente:', error);
+    throw new Error('Erro ao buscar cliente');
   }
 }
 
@@ -41,6 +59,29 @@ async function updateCliente(id, { nome, email, status }) {
   }
 }
 
+async function deleteClienteId(id) {
+  try {
+    // Primeiro, buscamos o cliente para garantir que ele existe
+    const cliente = await prisma.cliente.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!cliente) {
+      return { error: 'Cliente não encontrado.' };
+    }
+
+    // Exclui o cliente
+    await prisma.cliente.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return { message: 'Cliente excluído com sucesso.' };
+  } catch (error) {
+    console.error('Erro ao excluir cliente:', error);
+    return { error: 'Erro ao excluir cliente.' };
+  }
+}
+
 async function testConnection() {
   try {
     await prisma.$connect();
@@ -56,6 +97,8 @@ testConnection();
 
 module.exports = {
   getAllClientes,
+  getClienteById,
   createCliente,
   updateCliente,
+  deleteClienteId,
 };
