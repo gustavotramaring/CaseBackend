@@ -29,11 +29,16 @@ async function postCliente(request, reply) {
   const { nome, email, status } = request.body;
   try {
     const cliente = await clienteService.createCliente({ nome, email, status });
-    reply.status(201).send(cliente);
+    reply.status(201).send(cliente); // Retorna sucesso se o cliente for criado
   } catch (error) {
-    reply.status(400).send({ error: 'Erro ao criar cliente' });
+    if (error.message === 'Email já cadastrado a um cliente.') {
+      return reply.status(400).send({ error: error.message }); // Retorna erro 400 com mensagem específica
+    }
+    console.error(error);
+    reply.status(500).send({ error: 'Erro ao criar cliente.' });
   }
 }
+
 
 async function putCliente(request, reply) {
   const { id } = request.params;
@@ -42,9 +47,13 @@ async function putCliente(request, reply) {
     const cliente = await clienteService.updateCliente(id, { nome, email, status });
     reply.send(cliente);
   } catch (error) {
-    reply.status(400).send({ error: 'Erro ao editar cliente' });
+    if (error.message === 'Email já está em uso') {
+      return reply.status(400).send({ error: error.message }); // Retorna erro 400 se o email já estiver em uso
+    }
+    reply.status(500).send({ error: 'Erro ao editar cliente' });
   }
 }
+
 
 async function deleteCliente(request, reply) {
   const { id } = request.params;

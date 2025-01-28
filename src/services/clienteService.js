@@ -41,33 +41,48 @@ async function getClienteById(id) {
 
 async function createCliente({ nome, email, status }) {
   try {
+    // Verificar se o email já existe
+    const existingCliente = await prisma.cliente.findUnique({
+      where: { email },
+    });
+
+    if (existingCliente) {
+      throw new Error('Email já cadastrado a um cliente.'); // Lança erro se o email já estiver registrado
+    }
+
+    // Criar cliente se o email não existir
     const cliente = await prisma.cliente.create({
-      data: {
+      data: { 
         nome,
-        email,
-        status,
+        email, 
+        status 
       },
     });
+
     return cliente;
   } catch (error) {
     console.error('Erro ao criar cliente:', error);
-    if (error.code === 'P2002') { // Erro de unique constraint
-      return { error: 'Email já cadastrado.' }; // Retorna um objeto com erro
-    }
-    // Outros erros do Prisma (ex: P2003, P2017, etc.)
-    return { error: 'Erro ao criar cliente.' };
+    throw error; // Repassa o erro para a controller
   }
 }
 
 async function updateCliente(id, { nome, email, status }) {
   try {
-      return await prisma.cliente.update({
-          where: { id: parseInt(id) },
-          data: { nome, email, status },
-      });
+    // Verificar se já existe um cliente com o email fornecido, excluindo o próprio cliente
+    const existingCliente = await prisma.cliente.findUnique({
+      where: { email },
+    });
+
+    if (existingCliente && existingCliente.id !== id) {
+      throw new Error('Email já está em uso'); // Lança um erro se o email já existir
+    }
+    return await prisma.cliente.update({
+      where: { id: parseInt(id) },
+      data: { nome, email, status },
+    });
   } catch (error) {
-      console.error("Erro ao atualizar cliente:", error)
-      return { error: "Erro ao atualizar cliente" }
+    console.error("Erro ao atualizar cliente:", error);
+    throw error; 
   }
 }
 
