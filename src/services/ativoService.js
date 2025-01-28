@@ -29,8 +29,8 @@ async function getAtivoById(id) {
   }
 }
 
-async function createAtivo({ nome, valor, clienteId }) {
-  const data = { nome, valor };
+async function createAtivo({ nome, valor, rentabilidade, clienteId }) {
+  const data = { nome, valor, rentabilidade };
   if (clienteId) {
     data.clienteId = clienteId; // Adiciona `clienteId` somente se ele for fornecido
   }

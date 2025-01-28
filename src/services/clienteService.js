@@ -47,7 +47,7 @@ async function createCliente({ nome, email, status }) {
     });
 
     if (existingCliente) {
-      throw new Error('Email já cadastrado a um cliente.'); // Lança erro se o email já estiver registrado
+      throw new Error('Email já cadastrado a um cliente.');
     }
 
     // Criar cliente se o email não existir
@@ -62,28 +62,29 @@ async function createCliente({ nome, email, status }) {
     return cliente;
   } catch (error) {
     console.error('Erro ao criar cliente:', error);
-    throw error; // Repassa o erro para a controller
+    throw error;
   }
 }
 
-async function updateCliente(id, { nome, email, status }) {
-  try {
-    // Verificar se já existe um cliente com o email fornecido, excluindo o próprio cliente
-    const existingCliente = await prisma.cliente.findUnique({
-      where: { email },
-    });
+async function updateCliente(id, data) {
+  const { email } = data;
 
-    if (existingCliente && existingCliente.id !== id) {
-      throw new Error('Email já está em uso'); // Lança um erro se o email já existir
-    }
-    return await prisma.cliente.update({
-      where: { id: parseInt(id) },
-      data: { nome, email, status },
-    });
-  } catch (error) {
-    console.error("Erro ao atualizar cliente:", error);
-    throw error; 
+  // Verifica se o email já está em uso por outro cliente
+  const emailExistente = await prisma.cliente.findFirst({
+    where: {
+      email,
+      NOT: { id: Number(id) }, // Ignora o cliente que está sendo editado
+    },
+  });
+
+  if (emailExistente) {
+    throw new Error('Email já está em uso');
   }
+
+  return await prisma.cliente.update({
+    where: { id: Number(id) },
+    data,
+  });
 }
 
 async function deleteClienteId(id) {

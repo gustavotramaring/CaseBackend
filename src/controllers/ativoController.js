@@ -25,11 +25,12 @@ async function getAtivo(request, reply) {
 }
 
 async function postAtivos(request, reply) {
-  const { nome, valor, clienteId } = request.body;
+  const { nome, valor, rentabilidade, clienteId } = request.body;
   try {
     const ativo = await ativoService.createAtivo({
       nome,
       valor,
+      rentabilidade,
       clienteId: clienteId || null, // Passa `null` se o clienteId não for fornecido
     });
     reply.status(201).send(ativo);
