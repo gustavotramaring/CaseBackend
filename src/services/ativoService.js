@@ -15,6 +15,20 @@ async function getAllAtivos() {
   }
 }
 
+async function getAtivoById(id) {
+  try {
+    return await prisma.ativo.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        cliente: true,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao buscar ativo do cliente:", error)
+    throw new Error('Erro ao buscar ativo do cliente')
+  }
+}
+
 async function createAtivo({ nome, valor, clienteId }) {
   const data = { nome, valor };
   if (clienteId) {
@@ -26,7 +40,30 @@ async function createAtivo({ nome, valor, clienteId }) {
   });
 }
 
+async function deleteAtivoId(id) {
+  try {
+    const ativo = await prisma.ativo.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!ativo) {
+      return { error: 'Ativo não encontrado.' };
+    }
+
+    await prisma.ativo.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return { message: 'Ativo excluído com sucesso.' };
+  } catch (error) {
+    console.error('Erro ao excluir ativo:', error);
+    return { error: 'Erro ao excluir ativo.' };
+  }
+}
+
 module.exports = {
   getAllAtivos,
+  getAtivoById,
   createAtivo,
+  deleteAtivoId,
 };

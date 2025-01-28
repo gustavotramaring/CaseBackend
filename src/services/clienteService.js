@@ -2,14 +2,26 @@ const prisma = require('../../prismaClient');
 
 async function getAllClientes() {
   try {
-    return await prisma.cliente.findMany({
+    const clientes = await prisma.cliente.findMany({
       include: {
-      ativos: true,
-    }
-  });
+        ativos: true, // Inclui os ativos do cliente
+      },
+    });
+
+    // Calculando o valor total dos ativos para cada cliente
+    const clientesComTotais = clientes.map(cliente => {
+      const totalAtivos = cliente.ativos.reduce((acc, ativo) => acc + ativo.valorAtual, 0);
+      
+      return {
+        ...cliente,
+        totalAtivos, // Adiciona o total de ativos ao cliente
+      };
+    });
+
+    return clientesComTotais;
   } catch (error) {
     console.error('Erro ao listar clientes:', error);
-    throw new Error('Erro ao listar clientes'); // Ou retorne um objeto de erro mais específico
+    throw new Error('Erro ao listar clientes');
   }
 }
 

@@ -1,3 +1,4 @@
+const { ativo } = require('../../prismaClient');
 const ativoService = require('../services/ativoService');
 
 async function getAtivos(request, reply) {
@@ -6,6 +7,20 @@ async function getAtivos(request, reply) {
     reply.send(ativos);
   } catch (error) {
     reply.status(500).send({ error: 'Erro ao listar ativos' });
+  }
+}
+
+async function getAtivo(request, reply) {
+  const { id } = request.params;
+  try {
+    const ativo = await ativoService.getAtivoById(id);
+    if (!ativo) {
+      return reply.status(404).send({ error: 'Ativo não encontrado' });
+    }
+    reply.send(ativo);
+  } catch (error) {
+    console.error(error);
+    reply.status(500).send({ error: 'Erro ao buscar ativo' });
   }
 }
 
@@ -24,7 +39,22 @@ async function postAtivos(request, reply) {
   }
 }
 
+async function deleteAtivos(request, reply) {
+  const { id } = request.params;
+  try {
+    const result = await ativoService.deleteAtivoId(id);
+   if (result.error) {
+    return reply.status(404).send({ error: result.error });
+    }
+    reply.send({ message: result.message });
+  } catch (error) {
+    reply.status(500).send({ error: 'Erro ao excluir ativo' });
+  }
+}
+
 module.exports = {
   getAtivos,
+  getAtivo,
   postAtivos,
+  deleteAtivos,
 };
